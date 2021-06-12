@@ -1,7 +1,6 @@
 # https://www.rs-online.com/designspark/python-tkinter-cn#_Toc61529916
 
 import tkinter as tk
-#from tkinter import messagebox
 
 class ProgramBase(tk.Frame):
     def __init__(self, root, width=600, height=400):
@@ -33,9 +32,6 @@ class ProgramBase(tk.Frame):
             elif event.keysym == 'Escape':
                 print("key Escape") 
                 self.root.destroy()
-                #messagebox.showinfo("ProgramBase", "Bye Bye")
-        #else:
-        #print('event.char=', event.char)
 
 if __name__ == '__main__':
     program = ProgramBase(tk.Tk())

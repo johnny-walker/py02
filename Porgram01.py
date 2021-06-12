@@ -12,10 +12,10 @@ class Program01(rt.ProgramBase):
     def loadImage(self, path):
         img = Image.open(path)                    
         img = img.resize( (self.root.width , self.root.height ) )   
-        imgTk =  ImageTk.PhotoImage(img)                        
+        tkimage =  ImageTk.PhotoImage(img)                        
 
-        lbl = tk.Label(self.root, image=imgTk)                   
-        lbl.image = imgTk
+        lbl = tk.Label(self.root, image=tkimage)                   
+        lbl.image = tkimage
         lbl.grid(column=0, row=0)                             
 
 if __name__ == '__main__':
