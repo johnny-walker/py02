@@ -19,7 +19,7 @@ class ProgramBase(tk.Frame):
         # bind events
         root.bind_all('<Key>', self.onKey)
 
-    def start(self):
+    def run(self):
         self.root.mainloop()
 
     def onKey(self, event):
@@ -39,7 +39,7 @@ class ProgramBase(tk.Frame):
 
 if __name__ == '__main__':
     program = ProgramBase(tk.Tk())
-    program.start()
+    program.run()
     print("quit, bye bye ...")
 
 

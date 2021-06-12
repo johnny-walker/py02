@@ -25,5 +25,5 @@ if __name__ == '__main__':
     tiger = os.path.join(cwd, "data/tiger.jpeg")
     program.loadImage(tiger)
 
-    program.start()
+    program.run()
     print("quit, bye bye ...")
