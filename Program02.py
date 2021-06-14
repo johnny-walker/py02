@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 # import own modules
 import Root as rt
 
-class Program02(rt.ProgramBase):
+class Pgm02(rt.ProgramBase):
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
 
@@ -62,7 +62,7 @@ class Program02(rt.ProgramBase):
         lblMsg.grid(row=0, column=0, columnspan=1, sticky='w')
 
 if __name__ == '__main__':
-    program = Program02(tk.Tk())
+    program = Pgm02(tk.Tk())
     program.loadLayout()
     program.run()
     print("quit, bye bye ...")

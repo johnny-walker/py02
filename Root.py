@@ -11,7 +11,7 @@ class ProgramBase(tk.Frame):
         # configure window
         root.width = width
         root.height = height
-        geometry = '{0:d}x{1:d}'.format(root.width, root.height) 
+        geometry = '{0:d}x{1:d}'.format(root.width+5, root.height+5) 
         root.geometry(geometry)    # ex. root.geometry('600x400')
         root.title("window")
 

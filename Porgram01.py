@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 # import own modules
 import Root as rt
 
-class Program01(rt.ProgramBase):
+class Pgm01(rt.ProgramBase):
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
 
@@ -19,7 +19,7 @@ class Program01(rt.ProgramBase):
         lbl.grid(column=0, row=0)                             
 
 if __name__ == '__main__':
-    program = Program01(tk.Tk())
+    program = Pgm01(tk.Tk())
     
     cwd = os.getcwd()
     tiger = os.path.join(cwd, "data/tiger.jpeg")

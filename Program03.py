@@ -7,17 +7,21 @@ from PIL import Image, ImageTk
 # import own modules
 import Root as rt
 
-class Program03(rt.ProgramBase):
-    devImg = None
+class Pgm03(rt.ProgramBase):
+    divImg = None
     lblImg = None
-    btnOpen = None
-    btnPause = None
-    btnStop = None
-    btnReplay = None
     lblMsg = None
+
+    btnOpen = None
+    btnReset = None
+    btnBlur = None
+    btnEdge = None
 
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
+        self.root.title('Image Viewer')
+        self.loadLayout()
+        self.bindBtnEvents()
 
     def defineLayout(self, widget, cols=1, rows=1):
         #https://stackoverflow.com/questions/45847313/what-does-weight-do-in-tkinter
@@ -51,7 +55,7 @@ class Program03(rt.ProgramBase):
         self.defineLayout(divMsg)
 
         # label as container of image
-        self.devImg = divImg
+        self.divImg = divImg
         '''
         self.lblImg = tk.Label(divImg)
         self.lblImg['width'] = self.imgWidth
@@ -63,14 +67,14 @@ class Program03(rt.ProgramBase):
         self.btnOpen = tk.Button(divBtnArea, text='open')
         self.btnOpen.pack(side='left')
 
-        self.btnPause = tk.Button(divBtnArea, text='play')
-        self.btnPause.pack(side='left')
+        self.btnReset = tk.Button(divBtnArea, text='reset')
+        self.btnReset.pack(side='left')
 
-        self.btnStop = tk.Button(divBtnArea, text='stop')
-        self.btnStop.pack(side='left')
+        self.btnBlur = tk.Button(divBtnArea, text='blur')
+        self.btnBlur.pack(side='left')
 
-        self.btnReplay = tk.Button(divBtnArea,text='replay')
-        self.btnReplay.pack(side='left')
+        self.btnEdge = tk.Button(divBtnArea,text='edge')
+        self.btnEdge.pack(side='left')
 
         # label as message
         self.lblMsg = tk.Label(divMsg, text='show message here', bg='black', fg='white')
@@ -81,9 +85,9 @@ class Program03(rt.ProgramBase):
         
     def bindBtnEvents(self):
         self.btnOpen['command'] = lambda : self.onOpen()
-        self.btnPause['command'] = lambda : self.onPause()   # play/pause 
-        self.btnStop['command'] = lambda : self.onStop()
-        self.btnReplay['command'] = lambda : self.onReplay()
+        self.btnReset['command'] = lambda : self.onReset()   
+        self.btnBlur['command'] = lambda : self.onBlur()
+        self.btnEdge['command'] = lambda : self.onEdgt()
 
     def onOpen(self):
         self.showMessage('open file...')
@@ -91,27 +95,25 @@ class Program03(rt.ProgramBase):
         self.showMessage("open file {0:s}".format(filename))
         self.loadImage(filename)
 
-    def onPlay(self):
-        self.showMessage("play file {0:s}".format('...'))
+    def onReset(self):
+        self.showMessage("reset effects")
 
-    def onPause(self):
-        self.showMessage("pause file {0:s}".format('...'))
+    def onBlur(self):
+        self.showMessage("apply blur effect")
 
-    def onStop(self):
-        self.showMessage("stop file {0:s}".format('...'))
-
-    def onReplay(self):
-        self.showMessage("replay file {0:s}".format('...'))
+    def onEdgt(self):
+        self.showMessage("apply blur effect")
 
     def loadImage(self, path):
         im = Image.open(path)
-        tkimage = ImageTk.PhotoImage( im.resize( (self.imgWidth, self.imgHeight) ) )
+        im.thumbnail((self.imgWidth, self.imgHeight))
+        tkimage = ImageTk.PhotoImage(im)
 
         if self.lblImg:
             self.lblImg.destroy()
 
         # create label
-        self.lblImg = tk.Label(self.devImg, image=tkimage)
+        self.lblImg = tk.Label(self.divImg, image=tkimage)
         self.lblImg.image = tkimage    
         self.lblImg.grid(row=0, column=0)
         self.lblImg['width'] = self.imgWidth
@@ -124,7 +126,7 @@ class Program03(rt.ProgramBase):
 
 
 if __name__ == '__main__':
-    program = Program03(tk.Tk(), width=800, height=600)
+    program = Pgm03(tk.Tk(), width=800, height=600)
     program.loadLayout()
     program.bindBtnEvents()
 
