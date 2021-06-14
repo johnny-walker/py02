@@ -16,6 +16,7 @@ class Pgm03(rt.ProgramBase):
     btnReset = None
     btnBlur = None
     btnSharp = None
+    btnCompare = None
 
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
@@ -63,7 +64,7 @@ class Pgm03(rt.ProgramBase):
         self.lblImg.grid(row=0, column=0, sticky=align_mode)
         '''
 
-        # 4 control buttons
+        # 5 control buttons
         self.btnOpen = tk.Button(divBtnArea, text='open')
         self.btnOpen.pack(side='left')
 
@@ -75,6 +76,9 @@ class Pgm03(rt.ProgramBase):
 
         self.btnSharp = tk.Button(divBtnArea,text='sharp')
         self.btnSharp.pack(side='left')
+
+        self.btnCompare = tk.Button(divBtnArea,text='B/A')
+        self.btnCompare.pack(side='left')
 
         # label as message
         self.lblMsg = tk.Label(divMsg, text='show message here', bg='black', fg='white')

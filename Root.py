@@ -9,10 +9,12 @@ class ProgramBase(tk.Frame):
         self.frame = self
         
         # configure window
+        x = 450
+        y = 150
         root.width = width
         root.height = height
-        geometry = '{0:d}x{1:d}'.format(root.width+5, root.height+5) 
-        root.geometry(geometry)    # ex. root.geometry('600x400')
+        geometry = '{0:d}x{1:d}+{2:d}+{3:d}'.format(root.width+5, root.height+5, x, y) 
+        root.geometry(geometry)    # ex. root.geometry('600x400+250+150')
         root.title("window")
 
         # bind events

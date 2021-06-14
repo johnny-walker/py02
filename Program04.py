@@ -16,39 +16,53 @@ class Pgm04(Pgm03):
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
         self.root.title('Image Editor')
-        self.bind3BtnEvents()
+        self.bindButtonEvents()
 
-    def bind3BtnEvents(self):
+    def bindButtonEvents(self):
         self.btnReset['command'] = lambda : self.onReset()   
         self.btnBlur['command'] = lambda : self.onBlur()
         self.btnSharp['command'] = lambda : self.onSharp()
-    
+        self.btnCompare.bind('<ButtonPress-1>', self.onBAPress)
+        self.btnCompare.bind('<ButtonRelease-1>',self.onBARelease)
+        
+    # override
     def onReset(self):
-        self.showMessage("reset effects")
         self.cvImgUpdate = self.cvImg
-        self.updateImage()
+        self.updateImage(self.cvImg)
+        self.showMessage("reset effects")
 
+    # override
     def onBlur(self):
-        size = 9
-        self.showMessage("apply gaussian blur ")
+        size = 15
         self.cvImgUpdate = cv2.GaussianBlur(self.cvImgUpdate,(size, size), 0)
-        self.updateImage()
-
+        self.updateImage(self.cvImgUpdate)
+        self.showMessage("apply gaussian blur ")
+    
+    # override
     def onSharp(self):
         self.showMessage("apply sharpen effect")
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         self.cvImgUpdate = cv2.filter2D(self.cvImgUpdate, -1, kernel)
-        self.updateImage()
+        self.updateImage(self.cvImgUpdate)
 
+    def onBAPress(self, effect):
+        self.updateImage(self.cvImg)
+        self.showMessage("show original image")
+
+    def onBARelease(self, effect):
+        self.updateImage(self.cvImgUpdate)
+        self.showMessage("show applied image")
+
+    # override
     def loadImage(self, path):
         self.cvImg = cv2.imread(path)
         self.cvImg = self.cvImg[:,:,::-1] # 將 BGR 圖片轉為 RGB 圖片
         self.cvImgUpdate = self.cvImg.copy()
-        self.updateImage()
+        self.updateImage(self.cvImg)
         self.showMessage("file {0:s} loaded".format(path))
 
-    def updateImage(self):
-        im = Image.fromarray(self.cvImgUpdate)
+    def updateImage(self, img):
+        im = Image.fromarray(img)
         im.thumbnail((self.imgWidth, self.imgHeight))
         tkimage = ImageTk.PhotoImage(im)
 
