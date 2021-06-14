@@ -8,29 +8,23 @@ from PIL import Image, ImageTk
 import Root as rt
 
 class Program03(rt.ProgramBase):
+    devImg = None
+    lblImg = None
+    btnOpen = None
+    btnPause = None
+    btnStop = None
+    btnReplay = None
+    lblMsg = None
+
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
-        self.devImg = None
-        self.lblImg = None
-        self.btnOpen = None
-        self.btnPause = None
-        self.btnStop = None
-        self.btnReplay = None
-        self.lblMsg = None
 
-    def defineLayout(self, widgets, cols=1, rows=1):
-        def method(widget):
-            for c in range(cols):    
-                widget.columnconfigure(c, weight=1)
-            for r in range(rows):
-                widget.rowconfigure(r, weight=1)
-            return
-
-        if type(widgets)==list:        
-            [ method(wgt) for wgt in widgets ]
-        else:
-            wgt = widgets
-            method(wgt)                   
+    def defineLayout(self, widget, cols=1, rows=1):
+        #https://stackoverflow.com/questions/45847313/what-does-weight-do-in-tkinter
+        for c in range(cols):    
+            widget.columnconfigure(c, weight=1)
+        for r in range(rows):
+            widget.rowconfigure(r, weight=1)
     
     def loadLayout(self):
         align_mode = 'nswe'
@@ -52,7 +46,9 @@ class Program03(rt.ProgramBase):
         divMsg.grid(row=2, column=0, padx=padding, pady=padding, sticky=align_mode)
 
         self.defineLayout(self.root)
-        self.defineLayout([divImg, divBtnArea, divMsg])
+        self.defineLayout(divImg)
+        self.defineLayout(divBtnArea)
+        self.defineLayout(divMsg)
 
         # label as container of image
         self.devImg = divImg
