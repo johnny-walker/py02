@@ -15,7 +15,7 @@ class Pgm03(rt.ProgramBase):
     btnOpen = None
     btnReset = None
     btnBlur = None
-    btnEdge = None
+    btnSharp = None
 
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
@@ -73,8 +73,8 @@ class Pgm03(rt.ProgramBase):
         self.btnBlur = tk.Button(divBtnArea, text='blur')
         self.btnBlur.pack(side='left')
 
-        self.btnEdge = tk.Button(divBtnArea,text='edge')
-        self.btnEdge.pack(side='left')
+        self.btnSharp = tk.Button(divBtnArea,text='sharp')
+        self.btnSharp.pack(side='left')
 
         # label as message
         self.lblMsg = tk.Label(divMsg, text='show message here', bg='black', fg='white')
@@ -87,13 +87,13 @@ class Pgm03(rt.ProgramBase):
         self.btnOpen['command'] = lambda : self.onOpen()
         self.btnReset['command'] = lambda : self.onReset()   
         self.btnBlur['command'] = lambda : self.onBlur()
-        self.btnEdge['command'] = lambda : self.onEdgt()
+        self.btnSharp['command'] = lambda : self.onSharp()
 
     def onOpen(self):
-        self.showMessage('open file...')
         filename =  filedialog.askopenfilename(initialdir="/", title="Select file")
-        self.showMessage("open file {0:s}".format(filename))
-        self.loadImage(filename)
+        if filename:
+            self.showMessage("open file {0:s}".format(filename))
+            self.loadImage(filename)
 
     def onReset(self):
         self.showMessage("reset effects")
@@ -101,8 +101,8 @@ class Pgm03(rt.ProgramBase):
     def onBlur(self):
         self.showMessage("apply blur effect")
 
-    def onEdgt(self):
-        self.showMessage("apply blur effect")
+    def onSharp(self):
+        self.showMessage("apply sharpness effect")
 
     def loadImage(self, path):
         im = Image.open(path)
