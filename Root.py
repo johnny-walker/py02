@@ -7,7 +7,7 @@ class ProgramBase(tk.Frame):
         super().__init__(root)
         self.root = root
         self.frame = self
-        
+
         # configure window
         x = 450
         y = 150
