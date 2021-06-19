@@ -19,7 +19,6 @@ class Pgm05(ProgramBase):
         img = Image.open('data/mouse.png')
         img = img.resize((img.width//20,img.height//20), Image.ANTIALIAS)
         self.img = self.loadImage('data/mouse.png')
-
         self.canvas.create_image(10, 10, anchor = 'nw', image = self.img)
         self.root.update()
     

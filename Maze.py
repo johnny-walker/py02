@@ -73,35 +73,36 @@ class Maze(ProgramBase):
                     cwd = os.getcwd()
                     path = os.path.join(cwd,'data/mouse.png')  
                     print(path)
-                    self.imageMouse = self.loadImage(path)
-                    self.mouseID = self.canvas.create_image(left, top, anchor = 'nw', image = self.imageMouse)
+                    self.imageTKMouse = self.loadImage(path)
+                    self.mouseImgID = self.canvas.create_image(left, top, anchor = 'nw', image = self.imageTKMouse)
                     self.canvas.pack()
-
-    def resizeAsTKImg(self):
-        im = Image.fromarray(self.imgCV2)
-        im.thumbnail((im.width//24, im.height//24))
-        return ImageTk.PhotoImage(im)
 
     def loadImage(self, path):
         img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
         self.imgCV2 = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
         self.rotateImage(0, 0.8)
         return self.resizeAsTKImg()
+    
+    def resizeAsTKImg(self):
+        im = Image.fromarray(self.imgCV2)
+        im.thumbnail((im.width//24, im.height//24))
+        return ImageTk.PhotoImage(im)
 
-
-    def rotateImage(self, angle, scale = 1.0):
+    def rotateImage(self, angle, scale=1.0):
         rows, cols = self.imgCV2.shape[:2]
         matrix2D = cv2.getRotationMatrix2D(((cols-1)/2.0, (rows-1)/2.0), angle, scale)
         self.imgCV2 = cv2.warpAffine(self.imgCV2, matrix2D, (cols,rows))
 
     def updateMouseImage(self):
-        im = self.resizeAsTKImg()
-        self.canvas.itemconfig(self.image_on_canvas, image=im)
+        self.imageTKMouse = self.resizeAsTKImg()
+        self.canvas.itemconfig(self.mouseImgID, image=self.imageTKMouse)
 
 if __name__ == '__main__':
     print(tk.TkVersion)
     program = Maze(tk.Tk())
     cwd = os.getcwd()
     program.loadMap(os.path.join(cwd,'data/maze_map01.csv'))    
+    program.rotateImage(45, 0.8)
+    program.updateMouseImage()    
     program.run()
     print("Mouse walks in Maze, bye bye ...")
