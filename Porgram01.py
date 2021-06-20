@@ -16,7 +16,8 @@ class Pgm01(rt.ProgramBase):
 
         lbl = tk.Label(self.root, image=tkimage)                   
         lbl.image = tkimage
-        lbl.grid(column=0, row=0)                             
+        #lbl.grid(column=0, row=0)                             
+        lbl.pack()                             
 
 if __name__ == '__main__':
     program = Pgm01(tk.Tk())

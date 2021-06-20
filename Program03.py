@@ -94,7 +94,7 @@ class Pgm03(rt.ProgramBase):
         self.btnSharp['command'] = lambda : self.onSharp()
 
     def onOpen(self):
-        filename =  filedialog.askopenfilename(initialdir="/", title="Select file")
+        filename =  filedialog.askopenfilename(initialdir="./", title="Select file")
         if filename:
             self.showMessage("open file {0:s}".format(filename))
             self.loadImage(filename)

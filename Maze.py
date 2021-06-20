@@ -26,7 +26,7 @@ class Map():
     def __init__(self):
         self.info = []
         self.rows = 0
-        self.cloumns = 0
+        self.columns = 0
 
     def loadMap(self, filepath):
         with open(filepath, newline='') as csvfile:
@@ -35,41 +35,118 @@ class Map():
                 print(row)
                 self.info.append(row)
         self.rows = len(self.info)
-        self.cloumns = len(self.info[0])
-        print('map rows = {0}, cloumns = {1}'.format(self.rows, self.cloumns))
+        self.columns = len(self.info[0])
+        print('map rows = {0}, columns = {1}'.format(self.rows, self.columns))
     
+    def isBlock(self, x, y):
+        block = True
+        if x in range(0,self.columns) and y in range(0,self.rows):
+            block = self.info[y][x] == '0'
+        return block
+        
+    def isStart(self, x, y):
+        return self.info[y][x] == '2'
+
+    def isExit(self, x, y):
+        return self.info[y][x] == '3'
+        
+
+# movement algorithm
+class MazeMove():
+    def __init__(self, maze):
+        self.mouseRoute = []
+        self.candidatesStack = []
+        self.maze = maze
+        self.currentItem = None
+
+    def initState(self, x, y):
+        # append route item (direction, parent, son)  
+        self.currentItem = (None, None, (x, y))
+        self.mouseRoute.append(self.currentItem)
+        self.addCandidates(x,y)
+
+    def popRoute(self):
+        return self.mouseRoute.pop()
+
+    def lastRoute(self):
+        return self.mouseRoute[-1]
+
+    def addCandidates(self, x, y):
+        newCandidate = False
+        if not self.maze.isBlock(x+1, y):  
+            item = ('east', (x, y), (x+1, y))
+            self.candidatesStack.append(item)
+            newCandidate = True
+        if not self.maze.isBlock(x, y+1): 
+            item = ('south', (x, y), (x, y+1))
+            self.candidatesStack.append(item)
+            newCandidate = True
+        if not self.maze.isBlock(x-1, y): 
+            item = ('west', (x, y), (x-1, y))
+            self.candidatesStack.append(item)
+            newCandidate = True
+        if not self.maze.isBlock(x, y-1): 
+            item = ('north', (x, y), (x, y-1))
+            self.candidatesStack.append(item)
+            newCandidate = True
+        return newCandidate
+
+    def moveForward(self):
+        print('move forward')
+        state = True
+        item = None
+        while len(self.candidatesStack) > 0:
+            item = self.candidatesStack.pop()
+            if self.addCandidates(item[2][0],item[2][0]): 
+                break
+
+        if len(self.candidatesStack) == 0 :
+            print('No route to exit')
+            state = False
+
+        #print(item)
+        self.currentItem = item
+        self.mouseRoute.append(item)
+        return (state, item)
+
+
+
 class Maze(ProgramBase):
     threadEventMouse = threading.Event()
     threadMouse = None
 
     def __init__(self, root, width=640, height=480):
         super().__init__(root, width, height)
+        # init UI
         self.width = width
         self.height = height
         self.root.title('Mouse Maze')
         self.canvas = tk.Canvas(self.root, bg = "gray", width=width, height=height)
         self.canvas.pack()
 
-        self.map = Map()
-        self.sizeX = 0
-        self.sizeY = 0
-        self.direction = 'east'
-        self.imgMouses = {}  # prepare 4 directions' mouse images 
-        self.imageTKMouse = None
-        self.mouseImgID = 0
+        self.map = Map()                        # read csv file
+        self.mazeMove = MazeMove(self.map)      # mouse moving algorithm
+        
+        self.sizeX = 0                          # cell size x
+        self.sizeY = 0                          # cell size y
+        self.direction = 'east'                 # current image direction
+        self.imgMouses = {}                     # prepare 4 directions' mouse images 
+        self.imageTKMouse = None                # must hold the image object, otherwise will be released
+        self.mouseImgID = 0                     # mouse image widget
+        self.mousePos   = (0,0)                 # mouse current position
 
     def loadMap(self, path):
         self.map.loadMap(path)
-        self.sizeX = self.width/self.map.cloumns
+        self.sizeX = self.width/self.map.columns
         self.sizeY = self.height/self.map.rows
         self.drawMap()
         self.locateMouse()
 
     def drawMap(self):
-        for x in range (self.map.cloumns):
+        for x in range (self.map.columns):
             for y in range (self.map.rows):
                 centx, centy = (x*self.sizeX+self.sizeX/2, y*self.sizeY+self.sizeY/2)
-                if self.map.info[y][x] == '0':
+                if self.map.isBlock(x,y):
                     radius = 5
                     coord_rect = centx-radius, centy-radius, centx+radius, centy+radius
                     self.canvas.create_oval(coord_rect, fill="green")
@@ -77,14 +154,14 @@ class Maze(ProgramBase):
                     radius = 2
                     coord_rect = centx-radius, centy-radius, centx+radius, centy+radius
                     color = 'yellow'
-                    if self.map.info[y][x] == '2':
+                    if self.map.isStart(x,y):
                         color = 'blue'
-                    elif self.map.info[y][x] == '3':
+                    elif self.map.isExit(x,y):
                         color = 'red'
                     self.canvas.create_oval(coord_rect, fill=color)
     
     def locateMouse(self):
-        for x in range (self.map.cloumns):
+        for x in range (self.map.columns):
             for y in range (self.map.rows):
                 if self.map.info[y][x] == '2':
                     left, top = (x*self.sizeX, x*self.sizeY)  #top-left corner position
@@ -92,8 +169,10 @@ class Maze(ProgramBase):
                     path = os.path.join(cwd,'data/mouse.png')  
                     print(path)
                     self.imageTKMouse = self.loadImage(path)
-                    self.mouseImgID = self.canvas.create_image(left, top, anchor = 'nw', image = self.imageTKMouse)
+                    self.mouseImgID = self.canvas.create_image(left, top, anchor='nw', image=self.imageTKMouse)
                     self.canvas.pack()
+                    self.mazeMove.initState(x,y)
+                    self.mousePos = (x,y)
 
     def loadImage(self, path):
         imgCV2 = cv2.imread(path, cv2.IMREAD_UNCHANGED)
@@ -119,6 +198,12 @@ class Maze(ProgramBase):
         self.imageTKMouse = self.resizeAsTKImg(image)
         self.canvas.itemconfig(self.mouseImgID, image=self.imageTKMouse)
     
+    def updateMousePos(self, pos):
+        offsetx = (pos[0] - self.mousePos[0]) * self.sizeX
+        offsety = (pos[1] - self.mousePos[1]) * self.sizeY
+        print(offsetx, offsety)
+        self.canvas.move(self.mouseImgID, offsetx, offsety)
+
     # override
     def onKey(self, event):
         if event.char == event.keysym or len(event.char) == 1:
@@ -138,9 +223,31 @@ class Maze(ProgramBase):
     def move(self, threadName):
         while not self.threadEventMouse.wait(0.2):  # moving for every 200 ms
             #print ('[{0}][{1}] keep moving'.format(threadName, time.time()))
-            self.rotateImage(45, 1.0)
-            self.updateMouseImage(self.imgMouses[self.direction])
+            self.nextStep()
         print('[{0}] exit'.format(threadName))
+
+    def nextStep(self):
+        state = self.mazeMove.moveForward()
+        if state:
+            while self.mazeMove.currentItem[1] != self.mazeMove.lastRoute()[1]:
+                itemRoute = self.mazeMove.popRoute()
+                itemRoute = (self.reverseDir(itemRoute[0]), itemRoute[1], itemRoute[2])
+                self.updateMouse(itemRoute)
+            self.updateMouse(self.mazeMove.currentItem)
+            
+            
+        #self.updateMouseImage(self.imgMouses[self.direction])
+    def updateMouse(self, item):
+        print (item)
+        if self.direction != item[0]: 
+            self.direction = item[0]
+            self.updateMouseImage(self.imgMouses[self.direction])
+        self.updateMousePos(item[2])
+        self.mousePos = item[2]
+
+    def reverseDir(self, dir):
+        reverse = {'east':'west', 'west':'east', 'north':'south', 'south': 'north'}
+        return reverse[dir]
 
 if __name__ == '__main__':
     print(tk.TkVersion)
@@ -148,4 +255,3 @@ if __name__ == '__main__':
     cwd = os.getcwd()
     program.loadMap(os.path.join(cwd,'data/maze_map01.csv'))    
     program.run()
-    print("Mouse walks in Maze, bye bye ...")
