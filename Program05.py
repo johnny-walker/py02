@@ -5,9 +5,9 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import cv2
 import numpy as np
-from Root import ProgramBase
-
+import time
 import threading
+from Root import ProgramBase
 
 THREAD_MOUSE_ID = 1    
 
@@ -19,8 +19,7 @@ class MazeThread (threading.Thread):
         self.owner  = owner       
 
     def run(self):
-        print("Starting " + self.name + " id= " +str(self.threadID))
-        
+        print('[{0}] starts, id={1}'.format(self.name, self.threadID))
         if self.threadID == THREAD_MOUSE_ID :
             self.owner.move(self.name)
 
@@ -35,6 +34,8 @@ class Pgm05(ProgramBase):
         self.canvas = tk.Canvas(self.root, bg = "gray", width=width, height=height)
         self.canvas.pack()
         self.imgCV2 = None
+        self.rows = 0
+        self.cols = 0
         self.imgTK = self.loadImage('data/mouse.png')
         self.mouseImgID = self.canvas.create_image(100, 100, anchor = 'nw', image = self.imgTK)
         self.root.update()
@@ -42,6 +43,7 @@ class Pgm05(ProgramBase):
     def loadImage(self, path):
         img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
         self.imgCV2 = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+        self.rows, self.cols = self.imgCV2.shape[:2]
         self.rotateImage(90, 0.8)
         return self.resizeAsTKImg()
 
@@ -51,14 +53,14 @@ class Pgm05(ProgramBase):
         return ImageTk.PhotoImage(im)                   # convert to tkinter image
 
     def rotateImage(self, angle, scale=1.0):
-        rows, cols = self.imgCV2.shape[:2]
-        matrix2D = cv2.getRotationMatrix2D(((cols-1)/2.0, (rows-1)/2.0), angle, scale)
-        self.imgCV2 = cv2.warpAffine(self.imgCV2, matrix2D, (cols,rows))
+        matrix2D = cv2.getRotationMatrix2D(((self.cols-1)/2.0, (self.rows-1)/2.0), angle, scale)
+        self.imgCV2 = cv2.warpAffine(self.imgCV2, matrix2D, (self.cols, self.rows))
 
     def updateMouseImage(self):
         self.imageTKMouse = self.resizeAsTKImg()
         self.canvas.itemconfig(self.mouseImgID, image=self.imageTKMouse)
 
+    # override
     def onKey(self, event):
         if event.char == event.keysym or len(event.char) == 1:
             if event.keysym == 'Escape':
@@ -66,22 +68,18 @@ class Pgm05(ProgramBase):
                 print("key Escape") 
                 self.root.destroy()
             else: # any other key
-                self.startWalking()
+                if not self.threadMouse:
+                    self.startThread()
     
-    def startWalking(self):
-        print ('start moving')
-        self.threadEventMouse.clear()   # reset the thread event
-    
-        # create thread
+    def startThread(self):
         self.threadMouse = MazeThread(THREAD_MOUSE_ID, "Mouse Thread", self)
+        self.threadEventMouse.clear()   # reset the thread event
         self.threadMouse.start()
     
     def move(self, threadName):
-        while True:
-            if self.threadEventMouse.wait(0.1):  # moving for every 100 ms
-                break
-            print ('[{0}] keep moving'.format(threadName))
-            self.rotateImage(10, 1.0)
+        while not self.threadEventMouse.wait(0.2):  # moving for every 100 ms
+            #print ('[{0}][{1}] keep moving'.format(threadName, time.time()))
+            self.rotateImage(45, 1.0)
             self.updateMouseImage()
         print('[{0}] exit'.format(threadName))
 
